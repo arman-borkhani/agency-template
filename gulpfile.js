@@ -28,23 +28,28 @@ function sassTask() {
     }))
 }
 
-function watchTask(){
+function watchTask() {
   gulp.watch('app/scss/**/*.scss', gulp.series(sassTask)); 
   gulp.watch("app/*.html").on('change', browserSync.reload);
   gulp.watch("app/js/**/*.js").on('change', browserSync.reload);
 }
 
-function optTask(){
+function optTask() {
   var plugins = [
     autoprefixer({browsers: ['last 3 version']}),
     cssnano()
   ];
   return gulp.src('app/*.html')
     .pipe(useref())
-    .pipe(htmlmin({ collapseWhitespace: true }))
     .pipe(gulpIf('*.js', uglify()))
     .pipe(gulpIf('*.css', postcss(plugins)))
     .pipe(gulp.dest('dist'))
+}
+
+function htmlMinify() {
+  return gulp.src('dist/*.html')
+  .pipe(htmlmin({ collapseWhitespace: true }))
+  .pipe(gulp.dest('dist'))
 }
 
 function imgTask(){
@@ -65,4 +70,4 @@ function fontTask() {
 
 
 exports.start = gulp.parallel(browserSyncTask, sassTask , watchTask);
-exports.build = gulp.series(optTask, imgTask, fontTask);
+exports.build = gulp.series(optTask, htmlMinify, imgTask, fontTask);
